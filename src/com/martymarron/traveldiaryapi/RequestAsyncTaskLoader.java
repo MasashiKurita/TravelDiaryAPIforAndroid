@@ -1,7 +1,11 @@
 package com.martymarron.traveldiaryapi;
 
+import java.net.URI;
+
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
@@ -23,11 +27,11 @@ public class RequestAsyncTaskLoader<D> {
 	private LoaderCallbacks<D> loaderCallbacks;
 	
 	private LoaderManager loaderManager;
-		
+			
 	public RequestAsyncTaskLoader(Request<D> request) {
 		
 		this.request = request;
-		this.apiBase = request.getContext().getString(com.martymarron.traveldiaryapi.R.string.api_base);
+		this.apiBase = request.getContext().getString(R.string.api_base);
 
 		asyncTaskLoader = new AsyncTaskLoader<D>(request.getContext()) {
 			
@@ -38,28 +42,18 @@ public class RequestAsyncTaskLoader<D> {
 				RestTemplate template = new RestTemplate();
 				template.getMessageConverters().add(new GsonHttpMessageConverter());
 				
-				String url = getApiBase() + getRequest().getPath();
-				Log.d(TAG, url);
+				URI url = 
+						UriComponentsBuilder.fromUriString(getApiBase())
+						.path(getRequest().getPath())
+						.queryParam("format", "json")
+						.build()
+						.toUri();
+				Log.d(TAG, url.toString());
 				
 				D data = null;
 				try {
-//				    Class<?> clazz = (Class<?>)this.getClass();
-//				    Type type = clazz.getGenericSuperclass();
-//				    Log.d(TAG, type.toString());
-//				
-//				    ParameterizedType pt = (ParameterizedType)type;
-//				    Log.d(TAG, pt.toString());
-//				
-//				    Type[] actualTypeArguments = pt.getActualTypeArguments();
-//				    Log.d(TAG, actualTypeArguments[0].toString());
-//				
-//				    Class<?> entityClass = (Class<?>)actualTypeArguments[0];
-//				    Log.d(TAG, entityClass.getSimpleName());
-//				    
-//				    data = (D)template.getForObject(url, entityClass);
-					
-					data = (D)template.getForObject(url, getRequest().getClazz());
-				} catch (Exception e) {
+					data = template.getForObject(url, getRequest().getClazz());
+				} catch (RestClientException e) {
 					Log.e(TAG, e.getMessage());
 				}
 				
@@ -102,5 +96,5 @@ public class RequestAsyncTaskLoader<D> {
 	public Request<D> getRequest() {
 		return request;
 	}
-		
+
 }

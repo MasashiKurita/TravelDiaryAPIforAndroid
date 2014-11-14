@@ -3,17 +3,31 @@ package com.martymarron.traveldiaryapi;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Diary {
 	
+	@SerializedName("id")
 	private long id;
 	
+	@SerializedName("user_id")
 	private String userId;
 	
+	@SerializedName("title")
 	private String title;
 	
+	@SerializedName("description")
 	private String description;
 	
+	@SerializedName("milestones")
 	private List<MileStone> milestones = new ArrayList<MileStone>();
+	
+	public Diary(long id, String userId, String title, String description) {
+		this.id = id;
+		this.userId = userId;
+		this.title = title;
+		this.description = description;
+	}
 	
 	/**
 	 * @return the id
@@ -97,11 +111,20 @@ public class Diary {
 
 	public static class MileStone {
 		
+		@SerializedName("id")
 		private long id;
 		
+		@SerializedName("page_id")
 		private String pageId;
 		
+		@SerializedName("diary")
 		private long diary;
+		
+		public MileStone(long id, String pageId, long diary) {
+			this.id = id;
+			this.pageId = pageId;
+			this.diary = diary;
+		}
 
 		/**
 		 * @return the id
