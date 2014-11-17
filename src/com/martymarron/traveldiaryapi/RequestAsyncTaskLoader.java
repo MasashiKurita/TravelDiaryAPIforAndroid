@@ -14,6 +14,13 @@ import android.content.Loader;
 import android.os.Bundle;
 import android.util.Log;
 
+/**
+ * Refs {@link AsyncTaskLoader }
+ * 
+ * @author x-masashik
+ *
+ * @param <D>
+ */
 public class RequestAsyncTaskLoader<D> {
 	
 	private static final String TAG = "RequestAsyncTaskLoader";
@@ -25,9 +32,11 @@ public class RequestAsyncTaskLoader<D> {
 	private AsyncTaskLoader<D> asyncTaskLoader;
 	
 	private LoaderCallbacks<D> loaderCallbacks;
-	
-	private LoaderManager loaderManager;
-			
+		
+	/**
+	 * 
+	 * @param request
+	 */
 	public RequestAsyncTaskLoader(Request<D> request) {
 		
 		this.request = request;
@@ -52,7 +61,26 @@ public class RequestAsyncTaskLoader<D> {
 				
 				D data = null;
 				try {
-					data = template.getForObject(url, getRequest().getClazz());
+					switch (getRequest().getHttpMethod()) {
+					case DELETE:
+						template.delete(url);
+						break;
+					
+					case POST:
+						data = template.postForObject(url, getRequest().getPostData(), getRequest().getClazz());
+						break;
+
+					case PUT:
+						template.put(url, getRequest().getPostData());
+						break;
+						
+					case GET:
+						data = template.getForObject(url, getRequest().getClazz());
+						break;
+						
+					default:
+						throw new RestClientException(getRequest().getHttpMethod().name() + " is not supported.");
+					}		
 				} catch (RestClientException e) {
 					Log.e(TAG, e.getMessage());
 				}
@@ -81,12 +109,11 @@ public class RequestAsyncTaskLoader<D> {
 			}
 		};
 		
-		this.loaderManager = request.getLoaderManager();
 	}
 	
-	public void execute() {
+	public void execute(LoaderManager loaderManager) {
 		Log.d(TAG, "execute task");
-		this.loaderManager.initLoader(0, null, loaderCallbacks);				
+		loaderManager.initLoader(0, null, loaderCallbacks);				
 	}
 	
 	public String getApiBase() {

@@ -1,12 +1,20 @@
 package com.martymarron.traveldiaryapi;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Diary {
+/**
+ * 
+ * @author x-masashik
+ *
+ */
+public class Diary implements Serializable {
 	
+	private static final long serialVersionUID = 5528356034078854303L;
+
 	@SerializedName("id")
 	private long id;
 	
@@ -21,6 +29,8 @@ public class Diary {
 	
 	@SerializedName("milestones")
 	private List<MileStone> milestones = new ArrayList<MileStone>();
+	
+	public Diary() {}
 	
 	public Diary(long id, String userId, String title, String description) {
 		this.id = id;

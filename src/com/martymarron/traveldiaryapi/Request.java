@@ -1,6 +1,10 @@
 package com.martymarron.traveldiaryapi;
 
-import android.app.LoaderManager;
+import java.io.Serializable;
+
+import org.springframework.http.HttpMethod;
+
+import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
 import android.content.Loader;
 import android.os.Bundle;
@@ -8,29 +12,45 @@ import android.os.Bundle;
 /**
  * @author x-masashik
  *
+ * @param <D>
  */
 public class Request<D> {
 	
 	private Context context;
 	
-	private LoaderManager loaderManager;
+	private HttpMethod httpMethod;
 	
 	private String path;
 	
 	private Bundle params;
+	
+	private Serializable postData;
 	
 	private Callback<D> callback;
 	
 	private Class<D> clazz;
 	
 	/**
+	 * 
 	 * @param context
+	 * @param path
+	 * @param params
+	 * @param httpMethod
+	 * @param postData
+	 * @param callback
+	 * @param clazz
 	 */
-	public Request(Context context, LoaderManager loaderManager, String path, Bundle params, Callback<D> callback, Class<D> clazz) {
+	public Request(Context context, 
+			String path, Bundle params, 
+			HttpMethod httpMethod, 
+			Serializable postData,
+			Callback<D> callback, 
+			Class<D> clazz) {
 		this.context = context;
-		this.setLoaderManager(loaderManager);
 		this.path = path;
 		this.params = params;
+		this.httpMethod = httpMethod;
+		this.postData = postData;
 		this.callback = callback;
 		this.clazz = clazz;
 	}
@@ -78,21 +98,6 @@ public class Request<D> {
 	}
 
 	/**
-	 * @return the loaderManager
-	 */
-	public LoaderManager getLoaderManager() {
-		return loaderManager;
-	}
-
-	/**
-	 * @param loaderManager the loaderManager to set
-	 */
-	public void setLoaderManager(LoaderManager loaderManager) {
-		this.loaderManager = loaderManager;
-	}
-
-	
-	/**
 	 * @return the callback
 	 */
 	public Callback<D> getCallback() {
@@ -106,6 +111,34 @@ public class Request<D> {
 		this.callback = callback;
 	}
 
+
+	/**
+	 * @return the httpMethod
+	 */
+	public HttpMethod getHttpMethod() {
+		return httpMethod;
+	}
+
+	/**
+	 * @param httpMethod the httpMethod to set
+	 */
+	public void setHttpMethod(HttpMethod httpMethod) {
+		this.httpMethod = httpMethod;
+	}
+
+	/**
+	 * @return the postData
+	 */
+	public Serializable getPostData() {
+		return postData;
+	}
+
+	/**
+	 * @param postData the postData to set
+	 */
+	public void setPostData(Serializable postData) {
+		this.postData = postData;
+	}
 
 	/**
 	 * @return the clazz
@@ -122,10 +155,28 @@ public class Request<D> {
 	}
 
 
+	/**
+	 * Refs {@link LoaderCallbacks }
+	 * 
+	 * @author x-masashik
+	 *
+	 * @param <D>
+	 */
 	public interface Callback<D> {
 		
+		/**
+		 * Refs {@link LoaderCallbacks#onLoadFinished(Loader, Object)  }
+		 * 
+		 * @param loader
+		 * @param data
+		 */
 		void onLoadFinished(Loader<D> loader, D data);
 
+		/**
+		 * Refs {@link LoaderCallbacks#onLoaderReset(Loader)  }
+		 * 
+		 * @param loader
+		 */
 		void onLoaderReset(Loader<D> loader);
 		
 	}
