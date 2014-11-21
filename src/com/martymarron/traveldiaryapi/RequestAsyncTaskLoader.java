@@ -1,7 +1,11 @@
 package com.martymarron.traveldiaryapi;
 
+import java.io.Serializable;
 import java.net.URI;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -19,9 +23,9 @@ import android.util.Log;
  * 
  * @author x-masashik
  *
- * @param <D>
+ * @param <D extends Serializable>
  */
-public class RequestAsyncTaskLoader<D> {
+public class RequestAsyncTaskLoader<D extends Serializable> {
 	
 	private static final String TAG = "RequestAsyncTaskLoader";
 	
@@ -29,10 +33,12 @@ public class RequestAsyncTaskLoader<D> {
 	
 	private final Request<D> request;
 	
+	private final Response<D> response = new Response<D>();
+
 	private AsyncTaskLoader<D> asyncTaskLoader;
 	
 	private LoaderCallbacks<D> loaderCallbacks;
-		
+
 	/**
 	 * 
 	 * @param request
@@ -41,7 +47,7 @@ public class RequestAsyncTaskLoader<D> {
 		
 		this.request = request;
 		this.apiBase = request.getContext().getString(R.string.api_base);
-
+		
 		asyncTaskLoader = new AsyncTaskLoader<D>(request.getContext()) {
 			
 			private static final String TAG = "AsyncTaskLoader";
@@ -58,29 +64,41 @@ public class RequestAsyncTaskLoader<D> {
 						.build()
 						.toUri();
 				Log.d(TAG, url.toString());
+				Class<D> responseType = getRequest().getClazz();
+				D request = getRequest().getPostData();
+				HttpMethod method = getRequest().getHttpMethod();
+				
+				HttpEntity<D> requestEntity = new HttpEntity<D>(request);
 				
 				D data = null;
 				try {
-					switch (getRequest().getHttpMethod()) {
-					case DELETE:
-						template.delete(url);
-						break;
+					ResponseEntity<D> responseEntity = null;
 					
+					switch (method) {
 					case POST:
-						data = template.postForObject(url, getRequest().getPostData(), getRequest().getClazz());
+						responseEntity = template.postForEntity(url, request, responseType);
+						break;
+
+					case GET:
+						responseEntity = template.getForEntity(url, responseType);
 						break;
 
 					case PUT:
-						template.put(url, getRequest().getPostData());
+					case DELETE:
+						responseEntity = template.exchange(url, method, requestEntity, responseType);
 						break;
-						
-					case GET:
-						data = template.getForObject(url, getRequest().getClazz());
-						break;
-						
+					
 					default:
 						throw new RestClientException(getRequest().getHttpMethod().name() + " is not supported.");
-					}		
+					}
+					
+					if (responseEntity != null) {
+						data = responseEntity.getBody();
+						
+					    response.setStatusCode(responseEntity.getStatusCode());
+					    response.setHeaders(responseEntity.getHeaders());
+					}
+					
 				} catch (RestClientException e) {
 					Log.e(TAG, e.getMessage());
 				}
@@ -100,7 +118,9 @@ public class RequestAsyncTaskLoader<D> {
 
 			@Override
 			public void onLoadFinished(Loader<D> loader, D data) {
-				getRequest().getCallback().onLoadFinished(loader, data);
+				response.setLoader(loader);
+				response.setBody(data);
+				getRequest().getCallback().onLoadFinished(response);
 			}
 
 			@Override

@@ -12,9 +12,9 @@ import android.os.Bundle;
 /**
  * @author x-masashik
  *
- * @param <D>
+ * @param <D extends Serializable>
  */
-public class Request<D> {
+public class Request<D extends Serializable> {
 	
 	private Context context;
 	
@@ -24,7 +24,7 @@ public class Request<D> {
 	
 	private Bundle params;
 	
-	private Serializable postData;
+	private D postData;
 	
 	private Callback<D> callback;
 	
@@ -43,7 +43,7 @@ public class Request<D> {
 	public Request(Context context, 
 			String path, Bundle params, 
 			HttpMethod httpMethod, 
-			Serializable postData,
+			D postData,
 			Callback<D> callback, 
 			Class<D> clazz) {
 		this.context = context;
@@ -129,14 +129,14 @@ public class Request<D> {
 	/**
 	 * @return the postData
 	 */
-	public Serializable getPostData() {
+	public D getPostData() {
 		return postData;
 	}
 
 	/**
 	 * @param postData the postData to set
 	 */
-	public void setPostData(Serializable postData) {
+	public void setPostData(D postData) {
 		this.postData = postData;
 	}
 
@@ -160,9 +160,9 @@ public class Request<D> {
 	 * 
 	 * @author x-masashik
 	 *
-	 * @param <D>
+	 * @param <D extends Serializable>
 	 */
-	public interface Callback<D> {
+	public interface Callback<D extends Serializable> {
 		
 		/**
 		 * Refs {@link LoaderCallbacks#onLoadFinished(Loader, Object)  }
@@ -170,7 +170,7 @@ public class Request<D> {
 		 * @param loader
 		 * @param data
 		 */
-		void onLoadFinished(Loader<D> loader, D data);
+		void onLoadFinished(Response<D> response);
 
 		/**
 		 * Refs {@link LoaderCallbacks#onLoaderReset(Loader)  }
