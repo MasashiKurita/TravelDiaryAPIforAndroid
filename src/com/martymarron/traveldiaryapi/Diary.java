@@ -119,8 +119,10 @@ public class Diary implements Serializable {
 	+ Integer.toString(this.getMilestones().size()) + " milestones.";
 	}
 
-	public static class MileStone {
+	public static class MileStone implements Serializable {
 		
+		private static final long serialVersionUID = 3975297395956332540L;
+
 		@SerializedName("id")
 		private long id;
 		
@@ -129,6 +131,8 @@ public class Diary implements Serializable {
 		
 		@SerializedName("diary")
 		private long diary;
+		
+		public MileStone() {}
 		
 		public MileStone(long id, String pageId, long diary) {
 			this.id = id;
