@@ -43,7 +43,7 @@ public class RequestAsyncTaskLoader<D extends Serializable> {
 	 * 
 	 * @param request
 	 */
-	public RequestAsyncTaskLoader(Request<D> request) {
+	public RequestAsyncTaskLoader(Request<D> request, LoaderManager loaderManager) {
 		
 		this.request = request;
 		this.apiBase = request.getContext().getString(R.string.api_base);
@@ -112,7 +112,6 @@ public class RequestAsyncTaskLoader<D extends Serializable> {
 
 			@Override
 			public Loader<D> onCreateLoader(int id, Bundle args) {
-				asyncTaskLoader.forceLoad();
 				return asyncTaskLoader;
 			}
 
@@ -129,11 +128,12 @@ public class RequestAsyncTaskLoader<D extends Serializable> {
 			}
 		};
 		
+		loaderManager.initLoader(hashCode(), null, loaderCallbacks);				
 	}
 	
-	public void execute(LoaderManager loaderManager) {
+	public void execute() {
 		Log.d(TAG, "execute task");
-		loaderManager.initLoader(0, null, loaderCallbacks);				
+		asyncTaskLoader.forceLoad();
 	}
 	
 	public String getApiBase() {
