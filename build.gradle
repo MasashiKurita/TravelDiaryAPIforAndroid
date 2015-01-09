@@ -1,11 +1,24 @@
-apply plugin: 'android-library'
-
-dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url 'http://repo.spring.io/milestone'
+        }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.0.0'
+    }
 }
-
+apply plugin: 'android-library'
+dependencies {
+    compile fileTree(include: '*.jar', dir: 'libs')
+    compile 'com.android.support:support-v4:21.0.3'
+    compile 'org.springframework.android:spring-android-rest-template:2.0.0.M1'
+    compile 'com.google.code.gson:gson:2.2.4'
+    compile 'com.android.support:appcompat-v7:21.0.3'
+}
 android {
-    compileSdkVersion 19
+    compileSdkVersion 21
     buildToolsVersion "21.1.2"
 
     sourceSets {
@@ -31,4 +44,9 @@ android {
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
     }
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
 }
