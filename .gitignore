@@ -1,4 +1,6 @@
 /gen/
 /assets/
 /bin/
+/build/
 /.settings/
+/local.properties
